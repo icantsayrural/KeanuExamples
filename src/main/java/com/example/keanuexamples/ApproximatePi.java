@@ -1,4 +1,4 @@
-package com.example.keanu;
+package com.example.keanuexamples;
 
 import io.improbable.keanu.algorithms.NetworkSamples;
 import io.improbable.keanu.algorithms.mcmc.MetropolisHastings;
