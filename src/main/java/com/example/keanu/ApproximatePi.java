@@ -15,13 +15,19 @@ import java.util.Collections;
 
 public class ApproximatePi {
 
-    public double run(int min, int max, int sampleCount) {
-        SmoothUniformVertex x = new SmoothUniformVertex(min, max);
-        SmoothUniformVertex y = new SmoothUniformVertex(min, max);
+    /**
+     * @param radius      radius of circle
+     * @param sampleCount number of samples Metropolis Hastings take
+     * @return an approximation of Pi
+     * @see <a href="http://www.eveandersson.com/pi/monte-carlo-circle">Calculation of Pi Using the Monte Carlo Method</a>
+     */
+    public double run(int radius, int sampleCount) {
+        SmoothUniformVertex x = new SmoothUniformVertex(0.0, radius);
+        SmoothUniformVertex y = new SmoothUniformVertex(0.0, radius);
 
         PowerVertex xSquared = new PowerVertex(x, new ConstantDoubleVertex(2));
         PowerVertex ySquared = new PowerVertex(y, new ConstantDoubleVertex(2));
-        ScalarDoubleTensor rSquared = new ScalarDoubleTensor(Math.pow(max - min, 2));
+        ScalarDoubleTensor rSquared = new ScalarDoubleTensor(Math.pow(radius, 2));
 
         AdditionVertex xSquaredPlusYSquared = new AdditionVertex(xSquared, ySquared);
 
