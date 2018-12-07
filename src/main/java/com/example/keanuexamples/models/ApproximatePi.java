@@ -1,5 +1,6 @@
-package com.example.keanuexamples;
+package com.example.keanuexamples.models;
 
+import com.example.keanuexamples.utils.SaveAndLoad;
 import io.improbable.keanu.algorithms.NetworkSamples;
 import io.improbable.keanu.algorithms.mcmc.MetropolisHastings;
 import io.improbable.keanu.network.BayesianNetwork;
@@ -10,33 +11,37 @@ import io.improbable.keanu.vertices.dbl.nonprobabilistic.ConstantDoubleVertex;
 import io.improbable.keanu.vertices.dbl.nonprobabilistic.operators.binary.AdditionVertex;
 import io.improbable.keanu.vertices.dbl.nonprobabilistic.operators.binary.PowerVertex;
 import io.improbable.keanu.vertices.dbl.probabilistic.SmoothUniformVertex;
+import lombok.experimental.UtilityClass;
 
+import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * @see <a href="http://www.eveandersson.com/pi/monte-carlo-circle">Calculation of Pi Using the Monte Carlo Method</a>
+ */
+@UtilityClass
 public class ApproximatePi {
 
-    /**
-     * @param radius      radius of circle
-     * @param sampleCount number of samples Metropolis Hastings take
-     * @return an approximation of Pi
-     * @see <a href="http://www.eveandersson.com/pi/monte-carlo-circle">Calculation of Pi Using the Monte Carlo Method</a>
-     */
-    public double run(int radius, int sampleCount) {
-        SmoothUniformVertex x = new SmoothUniformVertex(0.0, radius);
-        SmoothUniformVertex y = new SmoothUniformVertex(0.0, radius);
+    private static final int RADIUS = 100000;
+    private static final int SAMPLE_COUNT = 10000;
+    private static final String FILE_NAME = "approximatepi.proto";
+
+    public double run() throws IOException {
+        SmoothUniformVertex x = new SmoothUniformVertex(0.0, RADIUS);
+        SmoothUniformVertex y = new SmoothUniformVertex(0.0, RADIUS);
 
         PowerVertex xSquared = new PowerVertex(x, new ConstantDoubleVertex(2));
         PowerVertex ySquared = new PowerVertex(y, new ConstantDoubleVertex(2));
-        ScalarDoubleTensor rSquared = new ScalarDoubleTensor(Math.pow(radius, 2));
+        ScalarDoubleTensor rSquared = new ScalarDoubleTensor(Math.pow(RADIUS, 2));
 
         AdditionVertex xSquaredPlusYSquared = new AdditionVertex(xSquared, ySquared);
 
         BayesianNetwork network = new BayesianNetwork(xSquaredPlusYSquared.getConnectedGraph());
-        NetworkSamples networkSamples = MetropolisHastings.withDefaultConfig().getPosteriorSamples(network, Collections.singletonList(xSquaredPlusYSquared), sampleCount);
+        NetworkSamples networkSamples = MetropolisHastings.withDefaultConfig().getPosteriorSamples(network, Collections.singletonList(xSquaredPlusYSquared), SAMPLE_COUNT);
+        SaveAndLoad.save(network, FILE_NAME);
 
         DoubleVertexSamples result = networkSamples.getDoubleTensorSamples(xSquaredPlusYSquared);
         double probability = result.probability(doubleTensor -> isInCircle(doubleTensor, rSquared));
-
         return probability * 4;
     }
 
