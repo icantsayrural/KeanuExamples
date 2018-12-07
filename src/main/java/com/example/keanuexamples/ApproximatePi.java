@@ -32,7 +32,7 @@ public class ApproximatePi {
         AdditionVertex xSquaredPlusYSquared = new AdditionVertex(xSquared, ySquared);
 
         BayesianNetwork network = new BayesianNetwork(xSquaredPlusYSquared.getConnectedGraph());
-        NetworkSamples networkSamples = MetropolisHastings.getPosteriorSamples(network, Collections.singletonList(xSquaredPlusYSquared), sampleCount);
+        NetworkSamples networkSamples = MetropolisHastings.withDefaultConfig().getPosteriorSamples(network, Collections.singletonList(xSquaredPlusYSquared), sampleCount);
 
         DoubleVertexSamples result = networkSamples.getDoubleTensorSamples(xSquaredPlusYSquared);
         double probability = result.probability(doubleTensor -> isInCircle(doubleTensor, rSquared));
